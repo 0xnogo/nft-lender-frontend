@@ -1,24 +1,79 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { configureChains, createClient, WagmiConfig, chain } from 'wagmi';
 
-function App() {
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import { publicProvider } from 'wagmi/providers/public'
+
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+
+import './App.css';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
+import { Manage } from './pages/Manage/Manage';
+import { Route, Routes } from 'react-router-dom';
+import { Dashboard } from './pages/Dashboard/Dashboard';
+import { Admin } from './pages/Admin/Admin';
+
+// To hide before commit and push
+const mainnetAnkrRPC: string = 'https://rpc.ankr.com/eth/TO_DEFINE'
+const goerliAnkrRPC: string = 'https://rpc.ankr.com/eth_goerli/TO_DEFINE'
+
+const { chains, provider, webSocketProvider } = configureChains(
+  [chain.localhost], [
+  jsonRpcProvider({
+    rpc: (_chain) => {
+      if (_chain.id === chain.mainnet.id) return { http: mainnetAnkrRPC }
+      if (_chain.id === chain.goerli.id) return { http: goerliAnkrRPC }
+      return { http: "http://localhost:8545" }
+    },
+  }),
+  publicProvider(),
+])
+// Set up client
+const client = createClient({
+  autoConnect: true,
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new CoinbaseWalletConnector({
+      chains,
+      options: {
+        appName: 'nftlender',
+      },
+    }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        qrcode: true,
+      },
+    }),
+    new InjectedConnector({
+      chains,
+      options: {
+        name: 'Injected',
+        shimDisconnect: true,
+      },
+    }),
+  ],
+  provider,
+  webSocketProvider,
+})
+
+const App: React.FC<{}> = (props) => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex flex-col bg-black text-white min-h-screen gap-y-12">
+      <WagmiConfig client={client}>
+        <Header />
+        <div className='container mx-auto'>
+          <Routes>
+            <Route index element={<Dashboard />} />
+            <Route path="/manage" element={<Manage />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+        </div>
+        <Footer />
+      </WagmiConfig>
     </div>
   );
 }
