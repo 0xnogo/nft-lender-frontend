@@ -6,7 +6,7 @@ import dummyNFTJSON from '../assets/abis/DummyNFT.json';
 import { NFTLENDER_CONTRACT_ADDRESS } from './use-nftlender';
 
 const DUMMYNFT_CONTRACT_ABI = new Interface(dummyNFTJSON.abi);
-export const DUMMYNFT_CONTRACT_ADDRESS = '0x4ee6ecad1c2dae9f525404de8555724e3c35d07b';
+export const DUMMYNFT_CONTRACT_ADDRESS = '0xa56f946d6398dd7d9d4d9b337cf9e0f68982ca5b';
 
 export function useMintPrepare(): any {
   const { config, error } = usePrepareContractWrite({

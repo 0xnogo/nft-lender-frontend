@@ -1,12 +1,11 @@
-import { PrepareWriteContractResult } from '@wagmi/core';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { Interface } from 'ethers/lib/utils';
+import { Interface, parseUnits } from 'ethers/lib/utils';
 import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
 
 import nftLenderJSON from '../assets/abis/NFTLender.json';
 
 const NFTLENDER_ABI = new Interface(nftLenderJSON.abi);
-export const NFTLENDER_CONTRACT_ADDRESS = '0xd84379ceae14aa33c123af12424a37803f885889';
+export const NFTLENDER_CONTRACT_ADDRESS = '0xdde78e6202518ff4936b5302cc2891ec180e8bff';
 
 export function useGetFloorPrice(): {data: BigNumberish | undefined, isError: boolean, refetch: <TPageData>(options?: any) => any} {
   const { data, isError, refetch } = useContractRead({
@@ -22,14 +21,16 @@ export function useGetFloorPrice(): {data: BigNumberish | undefined, isError: bo
 export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumberish, error: Error | null, refetch: <TPageData>(options?: any) => any} {
   const { data, error, refetch } = useContractRead({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-    contractInterface: NFTLENDER_ABI,
+    contractInterface: nftLenderJSON.abi,
     functionName: 'maxAmountLoan',
     args: forAddress!,
     enabled: Boolean(forAddress),
     watch: true
   })
-  
-  const maxAmountLoan: BigNumberish = data? data : BigNumber.from(0);
+
+  console.log(error);
+
+  const maxAmountLoan: BigNumberish = data? BigNumber.from(data) : BigNumber.from(0);
   
   return { maxAmountLoan, error, refetch };
 }
@@ -56,7 +57,6 @@ export function useDeposit(
     onError(err) {
       console.log(err);
       console.log("ERROOOOOOR");
-      
     }
   })
 
@@ -72,13 +72,27 @@ export function useDeposit(
   return {deposit, dataDeposit, isLoadingDeposit, isSuccessDeposit, refetchPrepareDeposit};
 }
 
-export function useBorrowPrepare(borrowAmount: string | number): {config: PrepareWriteContractResult<ethers.Signer>, error: Error | null, refetch: () => any} {
-  const {config, error, refetch} = usePrepareContractWrite({
+export function useBorrow(
+  borrowAmount: string): {
+    borrow: any,
+    isLoadingBorrow: boolean,
+    isSuccessBorrow: boolean,
+    refetchPrepareBorrow: () => any} {
+  const {config, error, refetch: refetchPrepareBorrow} = usePrepareContractWrite({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
     contractInterface: NFTLENDER_ABI,
     functionName: 'borrow',
-    args: [ethers.BigNumber.from(borrowAmount === '' ? 0 : borrowAmount)]
+    args: [borrowAmount === '' ? BigNumber.from(0) : parseUnits(borrowAmount)]
   })
 
-  return {config, error, refetch};
+  const {data, write: borrow} = useContractWrite(config);
+  const { isLoading: isLoadingBorrow, isSuccess: isSuccessBorrow } = useWaitForTransaction({
+    confirmations: 1,
+    hash: data?.hash,
+    onSuccess() {
+      console.log("SUCCESS")
+    }
+  });
+
+  return {borrow, isLoadingBorrow, isSuccessBorrow, refetchPrepareBorrow};
 }
