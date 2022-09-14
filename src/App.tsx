@@ -10,11 +10,11 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 
 import './App.css';
 import { Header } from './components/Header/Header';
-import { Footer } from './components/Footer/Footer';
 import { Manage } from './pages/Manage/Manage';
 import { Route, Routes } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 import { Admin } from './pages/Admin/Admin';
+import { Footer } from './components/UI/Footer/Footer';
 
 // To hide before commit and push
 const mainnetAnkrRPC: string = 'https://rpc.ankr.com/eth/TO_DEFINE'
@@ -62,10 +62,10 @@ const client = createClient({
 
 const App: React.FC<{}> = (props) => {
   return (
-    <div className="flex flex-col bg-black text-white min-h-screen gap-y-12">
-      <WagmiConfig client={client}>
+    <WagmiConfig client={client}>
+      <div className="flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
         <Header />
-        <div className='container mx-auto'>
+        <div className='container mx-auto w-1/2 justify-self-start'>
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="/manage" element={<Manage />} />
@@ -73,8 +73,8 @@ const App: React.FC<{}> = (props) => {
           </Routes>
         </div>
         <Footer />
-      </WagmiConfig>
-    </div>
+      </div>
+    </WagmiConfig>
   );
 }
 

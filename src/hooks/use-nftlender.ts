@@ -1,24 +1,28 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { Interface, parseUnits } from 'ethers/lib/utils';
-import { useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { Interface } from 'ethers/lib/utils';
+import { useContractRead } from 'wagmi';
 
 import nftLenderJSON from '../assets/abis/NFTLender.json';
+import { IDeposit, ILoan } from '../utils/interfaces';
+import { DUMMYNFT_CONTRACT_ADDRESS } from './use-dummynft';
 
-const NFTLENDER_ABI = new Interface(nftLenderJSON.abi);
-export const NFTLENDER_CONTRACT_ADDRESS = '0xdde78e6202518ff4936b5302cc2891ec180e8bff';
+export const NFTLENDER_ABI = new Interface(nftLenderJSON.abi);
+export const NFTLENDER_CONTRACT_ADDRESS = '0xf85895d097b2c25946bb95c4d11e2f3c035f8f0c';
 
-export function useGetFloorPrice(): {data: BigNumberish | undefined, isError: boolean, refetch: <TPageData>(options?: any) => any} {
+export const INTEREST_RATE = 316887385;
+
+export function useGetFloorPrice(forAddress: string | undefined = DUMMYNFT_CONTRACT_ADDRESS): {data: BigNumberish | undefined, isError: boolean, refetch: (options?: any) => any} {
   const { data, isError, refetch } = useContractRead({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
     contractInterface: NFTLENDER_ABI,
     functionName: 'getFloorPrice',
-    args: '0xa0ee7a142d267c1f36714e4a8f75612f20a79720',
+    args: forAddress,
   })
 
   return { data, isError, refetch };
 }
 
-export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumberish, error: Error | null, refetch: <TPageData>(options?: any) => any} {
+export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumber, error: Error | null, refetch: (options?: any) => any} {
   const { data, error, refetch } = useContractRead({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
     contractInterface: nftLenderJSON.abi,
@@ -28,71 +32,130 @@ export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan
     watch: true
   })
 
-  console.log(error);
-
-  const maxAmountLoan: BigNumberish = data? BigNumber.from(data) : BigNumber.from(0);
+  const maxAmountLoan: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
   
   return { maxAmountLoan, error, refetch };
 }
 
-export function useDeposit(
-  address: string, 
-  id: string | number,
-  onSuccessHandler: () => any,
-  isApproved: boolean,
-  isDeposited: boolean):
-  {
-    deposit: any,
-    dataDeposit: any,
-    isLoadingDeposit: boolean,
-    isSuccessDeposit: boolean,
-    refetchPrepareDeposit: <TPageData>(options?: any) => any,
-  } {   
-  const {config, refetch: refetchPrepareDeposit} = usePrepareContractWrite({
+export function useGetFullDebt(forAddress: string | undefined): {fullDebt: BigNumber, error: Error | null, refetch: (options?: any) => any} {
+  const { data, error, refetch } = useContractRead({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-    contractInterface: NFTLENDER_ABI,
-    functionName: 'deposit',
-    args: [address, ethers.BigNumber.from(id === '' ? 0 : id)],
-    enabled: Boolean(id) && Boolean(address) && isApproved && !isDeposited,
-    onError(err) {
-      console.log(err);
-      console.log("ERROOOOOOR");
-    }
-  })
-
-  const { data: dataDeposit, write: deposit } = useContractWrite(config);
-  const { isLoading: isLoadingDeposit, isSuccess: isSuccessDeposit } = useWaitForTransaction({
-    confirmations: 1,
-    hash: dataDeposit?.hash,
-    onSuccess(data) {
-      onSuccessHandler()
-    }
-  })
-
-  return {deposit, dataDeposit, isLoadingDeposit, isSuccessDeposit, refetchPrepareDeposit};
+    contractInterface: nftLenderJSON.abi,
+    functionName: 'getFullDebt',
+    enabled: Boolean(forAddress),
+    overrides: { from: forAddress },
+    watch: true
+  });
+  
+  const fullDebt: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
+  
+  return { fullDebt, error, refetch };
 }
 
-export function useBorrow(
-  borrowAmount: string): {
-    borrow: any,
-    isLoadingBorrow: boolean,
-    isSuccessBorrow: boolean,
-    refetchPrepareBorrow: () => any} {
-  const {config, error, refetch: refetchPrepareBorrow} = usePrepareContractWrite({
-    addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-    contractInterface: NFTLENDER_ABI,
-    functionName: 'borrow',
-    args: [borrowAmount === '' ? BigNumber.from(0) : parseUnits(borrowAmount)]
-  })
+export function useWithdrawAmountLeft(forAddress: string | undefined): BigNumber {
+  const {maxAmountLoan} = useMaxAmountLoan(forAddress);
+  const {fullDebt} = useGetFullDebt(forAddress);
 
-  const {data, write: borrow} = useContractWrite(config);
-  const { isLoading: isLoadingBorrow, isSuccess: isSuccessBorrow } = useWaitForTransaction({
-    confirmations: 1,
-    hash: data?.hash,
-    onSuccess() {
-      console.log("SUCCESS")
-    }
+  return maxAmountLoan.sub(fullDebt);
+}
+
+export function useHealthFactor(
+  forAddress: string | undefined,
+  nftToWithdraw?: {contractAddress: string | undefined, id: BigNumber | undefined}): {healthFactor: BigNumber, refetchHealthFactor: any} {
+    const { data, error, refetch: refetchHealthFactor } = useContractRead({
+      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
+      contractInterface: nftLenderJSON.abi,
+      functionName: 'getHealthFactor',
+      enabled: Boolean(forAddress),
+      overrides: { from: forAddress },
+      watch: true
+    });
+    
+    const healthFactor: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
+    
+    return { healthFactor, refetchHealthFactor };
+  // const {deposits} = useGetDeposits(forAddress);
+  // const {fullDebt} = useGetFullDebt(forAddress)
+
+  // if (fullDebt.eq(BigNumber.from('0'))) {
+  //   return BigNumber.from('200');
+  // }
+
+  // let collateral = deposits.reduce((prevVal, currVal) => {   
+  //   if (Boolean(nftToWithdraw) 
+  //     && nftToWithdraw!.contractAddress! === currVal.address 
+  //     && nftToWithdraw!.id!.eq(currVal.tokenId)) {
+  //     return prevVal;
+  //   }
+  //   return prevVal.add(ethers.utils.parseEther('1'));
+  // }, BigNumber.from('0'));
+
+  // const liquidationThreshold = collateral
+  //   .mul(BigNumber.from('8000'))
+  //   .div(BigNumber.from('100'));
+
+  // return liquidationThreshold.div(fullDebt);
+}
+
+
+export function useGetDeposits(forAddress: string | undefined): {deposits: IDeposit[], error: Error | null, refetch: (options?: any) => any} {
+  const { data, error, refetch } = useContractRead({
+    addressOrName: NFTLENDER_CONTRACT_ADDRESS,
+    contractInterface: nftLenderJSON.abi,
+    functionName: 'getDepositFor',
+    args: [forAddress],
+    enabled: Boolean(forAddress),
+    watch: true,
   });
 
-  return {borrow, isLoadingBorrow, isSuccessBorrow, refetchPrepareBorrow};
+  let deposits: IDeposit[];
+  
+  if (data) {
+    deposits = data!.map(item => {
+      return {address: item[0], tokenId: item[1], startTime: item[2]}
+    });
+  } else {
+    deposits = [];
+  }  
+  
+  return { deposits, error, refetch };
 }
+
+export function useGetLoans(forAddress: string | undefined): {loans: ILoan[], error: Error | null, refetch: (options?: any) => any} {
+  const { data, error, refetch } = useContractRead({
+    addressOrName: NFTLENDER_CONTRACT_ADDRESS,
+    contractInterface: nftLenderJSON.abi,
+    functionName: 'getLoanFor',
+    args: [forAddress],
+    enabled: Boolean(forAddress),
+    watch: true,
+    cacheTime: 0
+  });
+
+  let loans: ILoan[];
+
+  if (data) {
+    loans = data!.map(item => {
+      return {amount: item[0], startTime: item[1], lastReimbursment: item[2]}
+    });
+  } else {
+    loans = [];
+  }
+  
+  return { loans, error, refetch };
+}
+
+export const useGetDebtAmountForLoan = (fromAddress: string | undefined, loan?: ILoan): BigNumber => {
+
+  if (loan) {
+    const timeElapsed = BigNumber.from(Date.now()).div(1_000).sub(loan.lastReimbursment);
+    const interest = loan.amount.div(ethers.utils.parseUnits("1", 15)).mul(INTEREST_RATE);
+    const fee = timeElapsed.mul(interest)
+  
+    return loan.amount.add(fee);
+  }
+
+  return BigNumber.from(0);
+}
+
+

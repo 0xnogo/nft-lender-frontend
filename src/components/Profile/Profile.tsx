@@ -4,6 +4,7 @@ import {
   useDisconnect,
   useEnsAvatar,
   useEnsName, } from 'wagmi';
+import { shrinkAddress } from '../../utils';
 import { Button } from '../UI/Button/Button';
 
 export const Profile = (props: any): JSX.Element => {
@@ -14,13 +15,6 @@ export const Profile = (props: any): JSX.Element => {
   const { disconnect } = useDisconnect();
 
   const commontStyle = 'flex flex-row justify-end items-center gap-x-2.5'
-
-  const shrinkAddress = (address?: string): string => {
-    if (address == undefined) {
-      return '';
-    }
-    return address.slice(0, 4) + '...' + address.slice(-4);
-  }
 
   if (isConnected) {
     return (

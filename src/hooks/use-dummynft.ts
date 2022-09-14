@@ -6,7 +6,7 @@ import dummyNFTJSON from '../assets/abis/DummyNFT.json';
 import { NFTLENDER_CONTRACT_ADDRESS } from './use-nftlender';
 
 const DUMMYNFT_CONTRACT_ABI = new Interface(dummyNFTJSON.abi);
-export const DUMMYNFT_CONTRACT_ADDRESS = '0xa56f946d6398dd7d9d4d9b337cf9e0f68982ca5b';
+export const DUMMYNFT_CONTRACT_ADDRESS = '0xd2d5e508c82efc205cafa4ad969a4395babce026';
 
 export function useMintPrepare(): any {
   const { config, error } = usePrepareContractWrite({
@@ -78,7 +78,7 @@ export function useApprove(
     approve: any, 
     isLoadingApprove: boolean, 
     isSuccessApprove: boolean, 
-    refetchPrepareApprove: <TPageData>(options?: any) => any} { 
+    refetchPrepareApprove: (options?: any) => any} { 
       
   const { config, refetch: refetchPrepareApprove } = usePrepareContractWrite({
     addressOrName: contractAddress,
