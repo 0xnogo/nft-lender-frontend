@@ -6,16 +6,25 @@ import dummyNFTJSON from '../assets/abis/DummyNFT.json';
 import { NFTLENDER_CONTRACT_ADDRESS } from './use-nftlender';
 
 const DUMMYNFT_CONTRACT_ABI = new Interface(dummyNFTJSON.abi);
-export const DUMMYNFT_CONTRACT_ADDRESS = '0xd2d5e508c82efc205cafa4ad969a4395babce026';
+export const DUMMYNFT_CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 
-export function useMintPrepare(): any {
+export function useMint(onSuccessHandler?: () => void): any {
   const { config, error } = usePrepareContractWrite({
     addressOrName: DUMMYNFT_CONTRACT_ADDRESS,
     contractInterface: DUMMYNFT_CONTRACT_ABI,
     functionName: 'selfMint',
   });
 
-  return [config, error];
+  const { data, write: mint, isSuccess } = useContractWrite(config);
+  const { isLoading: isLoadingMint, isSuccess: isSuccessMint } = useWaitForTransaction({
+    confirmations: 1,
+    hash: data?.hash,
+    onSuccess(data) {
+      onSuccessHandler?.()
+    }
+  })
+
+  return {mint, isLoadingMint, isSuccessMint};
 }
 
 export function useGetApproved(

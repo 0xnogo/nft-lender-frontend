@@ -97,6 +97,6 @@ export const Withdraw = (props: any): JSX.Element => {
       {deposits.length === 0 && <p>No deposit made</p>}
         
       <Button text="Withdraw" style="btn-primary" onClickHandler={onWithdrawHandler} disabled={!withdraw} styleAdded="w-1/3 self-center" />
-      <Button text="Withdraw all" style="btn-primary" onClickHandler={onWithdrawAllHandler} disabled={!withdrawAll} styleAdded="w-1/3 self-center"/>
+      <Button text="Withdraw and reimburse all" style="btn-primary" onClickHandler={onWithdrawAllHandler} disabled={!withdrawAll} styleAdded="w-1/3 self-center"/>
     </Container>);
 }

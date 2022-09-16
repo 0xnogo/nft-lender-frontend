@@ -7,19 +7,23 @@ import { IDeposit, ILoan } from '../utils/interfaces';
 import { DUMMYNFT_CONTRACT_ADDRESS } from './use-dummynft';
 
 export const NFTLENDER_ABI = new Interface(nftLenderJSON.abi);
-export const NFTLENDER_CONTRACT_ADDRESS = '0xf85895d097b2c25946bb95c4d11e2f3c035f8f0c';
+export const NFTLENDER_CONTRACT_ADDRESS = '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0';
 
 export const INTEREST_RATE = 316887385;
 
-export function useGetFloorPrice(forAddress: string | undefined = DUMMYNFT_CONTRACT_ADDRESS): {data: BigNumberish | undefined, isError: boolean, refetch: (options?: any) => any} {
+export function useGetFloorPrice(forAddress: string | undefined = DUMMYNFT_CONTRACT_ADDRESS): {floorPrice: BigNumber, isError: boolean, refetch: (options?: any) => any} {
   const { data, isError, refetch } = useContractRead({
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
     contractInterface: NFTLENDER_ABI,
     functionName: 'getFloorPrice',
-    args: forAddress,
+    args: [forAddress],
+    watch: true,
+    cacheTime: 0
   })
 
-  return { data, isError, refetch };
+  const floorPrice = data ? BigNumber.from(data) : BigNumber.from(0);
+  
+  return { floorPrice, isError, refetch };
 }
 
 export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumber, error: Error | null, refetch: (options?: any) => any} {
@@ -27,12 +31,12 @@ export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan
     addressOrName: NFTLENDER_CONTRACT_ADDRESS,
     contractInterface: nftLenderJSON.abi,
     functionName: 'maxAmountLoan',
-    args: forAddress!,
+    args: [forAddress!],
     enabled: Boolean(forAddress),
     watch: true
   })
 
-  const maxAmountLoan: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
+  const maxAmountLoan: BigNumber = data ? BigNumber.from(data) : BigNumber.from(0);
   
   return { maxAmountLoan, error, refetch };
 }
@@ -44,7 +48,8 @@ export function useGetFullDebt(forAddress: string | undefined): {fullDebt: BigNu
     functionName: 'getFullDebt',
     enabled: Boolean(forAddress),
     overrides: { from: forAddress },
-    watch: true
+    watch: true,
+    cacheTime: 0
   });
   
   const fullDebt: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
@@ -145,8 +150,11 @@ export function useGetLoans(forAddress: string | undefined): {loans: ILoan[], er
   return { loans, error, refetch };
 }
 
-export const useGetDebtAmountForLoan = (fromAddress: string | undefined, loan?: ILoan): BigNumber => {
+export const useGetDebtAmountForLoan = (address: string | undefined, loan?: ILoan): BigNumber => {
+  return getDebtAmountForLoan(loan);
+}
 
+export const getDebtAmountForLoan = (loan?: ILoan): BigNumber => {
   if (loan) {
     const timeElapsed = BigNumber.from(Date.now()).div(1_000).sub(loan.lastReimbursment);
     const interest = loan.amount.div(ethers.utils.parseUnits("1", 15)).mul(INTEREST_RATE);

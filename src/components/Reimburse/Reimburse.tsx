@@ -7,14 +7,10 @@ import { useAccount } from 'wagmi';
 
 import { useGetDebtAmountForLoan, useGetFullDebt, useGetLoans } from '../../hooks/use-nftlender';
 import { useReimburseAllDebt, useReimburseLoan } from '../../hooks/use-reimburse';
+import { fromSecToFormattedDate } from '../../utils';
 import { ILoan } from '../../utils/interfaces';
 import { Button } from '../UI/Button/Button';
 import { Container } from '../UI/Container/Container';
-
-const fromSecToFormattedDate = (seconds: BigNumber): string => {
-  const time = new Date(seconds.toNumber())
-  return time.toLocaleString('en-GB',{timeZone:'UTC'});
-}
 
 const generateTitle = (loan: ILoan): string => {
   return `${formatUnits(loan.amount.toString())} Eth - ${fromSecToFormattedDate(loan.startTime)} (UTC)`;

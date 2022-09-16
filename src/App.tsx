@@ -63,9 +63,9 @@ const client = createClient({
 const App: React.FC<{}> = (props) => {
   return (
     <WagmiConfig client={client}>
-      <div className="flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
+      <div className="dark flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
         <Header />
-        <div className='container mx-auto w-1/2 justify-self-start'>
+        <div className='container mx-auto w-3/4 justify-self-start'>
           <Routes>
             <Route index element={<Dashboard />} />
             <Route path="/manage" element={<Manage />} />

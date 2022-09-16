@@ -1,16 +1,11 @@
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
-import { Button } from "../../components/UI/Button/Button"
-import { useMintPrepare } from "../../hooks/use-dummynft";
+import { Liquidate } from '../../components/Liquidate/Liquidate';
+import { Mint } from '../../components/Mint/Mint';
+import { Oracle } from '../../components/Oracle/Oracle';
 
 export const Admin = (props: any): JSX.Element => {
-  const [config, error] = useMintPrepare();
-  const { write: mint, isSuccess } = useContractWrite(config);
-  
-  const onMintHandler = () => {
-    mint?.()
-  }
-
-  return <div>
-    <Button disabled={!mint} text="Mint" onClickHandler={onMintHandler} style="btn-primary"/>
+  return <div className="grid grid-cols-3 gap-4">
+    <Mint />
+    <Oracle />
+    <Liquidate />
   </div>
 }

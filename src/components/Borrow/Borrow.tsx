@@ -1,20 +1,16 @@
 import { BigNumber } from 'ethers';
-import { formatEther, parseEther } from 'ethers/lib/utils';
+import { parseEther } from 'ethers/lib/utils';
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useAccount } from 'wagmi';
-import { useBorrow } from '../../hooks/use-borrow';
 
+import { useBorrow } from '../../hooks/use-borrow';
 import { useGetFullDebt, useMaxAmountLoan } from '../../hooks/use-nftlender';
+import { truncateAndConvertBNtoString } from '../../utils';
 import { Button } from '../UI/Button/Button';
 import { Container } from '../UI/Container/Container';
 
-const inputStyle = "rounded-md bg-black p-4 focus:outline-none outline outline-1 outline-black hover:outline-1 hover:outline-blue-900"
-
-const truncateAndConvertBNtoString = (bn: BigNumber): string => {
-  const remainder = bn.mod(1e14);
-  return formatEther(bn.sub(remainder)); 
-}
+const inputStyle = "rounded-md bg-black p-4 focus:outline-none outline outline-1 outline-black hover:outline-1 hover:outline-blue-900";
 
 export const Borrow = (props: any): JSX.Element => {
   // internal state

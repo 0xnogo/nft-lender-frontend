@@ -16,8 +16,7 @@ export function useWithdraw(
     refetchPrepareWithdraw: (options?: any) => any,
   } {   
     const {healthFactor} = useHealthFactor(fromAddress, {contractAddress, id});
-    console.log(healthFactor);
-    
+        
     const {config, refetch: refetchPrepareWithdraw} = usePrepareContractWrite({
       addressOrName: NFTLENDER_CONTRACT_ADDRESS,
       contractInterface: NFTLENDER_ABI,
