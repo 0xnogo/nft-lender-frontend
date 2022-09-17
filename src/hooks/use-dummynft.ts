@@ -48,8 +48,8 @@ export function useGetApproved(
 
 export function useGetOwner(
   contractAddress: string,
-  id: string | number | BigNumber): {owner: string | undefined, error: Error | null, refetch: any} {
-  const { data, error, refetch } = useContractRead({
+  id: string | number | BigNumber): {owner: string | undefined, error: Error | null, refetch: any} {   
+    const { data, error, refetch } = useContractRead({
     addressOrName: contractAddress,
     contractInterface: erc721ABI,
     functionName: 'ownerOf',
@@ -95,32 +95,31 @@ export function useApprove(
     approve: any, 
     isLoadingApprove: boolean, 
     isSuccessApprove: boolean, 
-    refetchPrepareApprove: (options?: any) => any} { 
-      
-    const { config, refetch: refetchPrepareApprove } = usePrepareContractWrite({
-      addressOrName: contractAddress,
-      contractInterface: erc721ABI,
-      functionName: 'approve',
-      args: [toAddress, id],
-      enabled: Boolean(toAddress) && Boolean(id) && Boolean(owner) && isOwner && !isDeposited,
-      onError(err) {
-        console.log(err);
-        console.log("ERROOOOOOR APPROVE");
-      }
-    })
+    refetchPrepareApprove: (options?: any) => any} {
+      const { config, refetch: refetchPrepareApprove } = usePrepareContractWrite({
+        addressOrName: contractAddress,
+        contractInterface: erc721ABI,
+        functionName: 'approve',
+        args: [toAddress, id],
+        enabled: Boolean(toAddress) && Boolean(id) && Boolean(owner) && isOwner && !isDeposited,
+        onError(err) {
+          console.log(err);
+          console.log("ERROOOOOOR APPROVE");
+        }
+      })
 
-    const { data, write: approve } = useContractWrite(config);
+      const { data, write: approve } = useContractWrite(config);
 
-    const { isLoading: isLoadingApprove, isSuccess: isSuccessApprove } = useWaitForTransaction({
-      confirmations: 1, 
-      hash: data?.hash,
-      onSuccess(data) {
-        onSuccessHandler();
-      },
-      onError(err) {
-        console.log(err);
-      },
-    })
+      const { isLoading: isLoadingApprove, isSuccess: isSuccessApprove } = useWaitForTransaction({
+        confirmations: 1,
+        hash: data?.hash,
+        onSuccess(data) {
+          onSuccessHandler();
+        },
+        onError(err) {
+          console.log(err);
+        },
+      })
 
-    return {approve, isLoadingApprove, isSuccessApprove, refetchPrepareApprove};
+      return {approve, isLoadingApprove, isSuccessApprove, refetchPrepareApprove};
 }

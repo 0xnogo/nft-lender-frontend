@@ -4,7 +4,7 @@ import nftLenderJSON from '../assets/abis/NFTLender.json';
 import oracleJSON from '../assets/abis/OracleNftFloor.json';
 import dummyNFTJSON from '../assets/abis/DummyNFT.json';
 
-const GOERLI_ANKR_ID = process.env.GOERLI_ANKR_ID
+const GOERLI_ANKR_ID = process.env.REACT_APP_GOERLI_ANKR_ID
 const GOERLI_ANKR_RPC: string = `https://rpc.ankr.com/eth_goerli/${GOERLI_ANKR_ID}`
 
 const NFTLENDER_ABI = new Interface(nftLenderJSON.abi);

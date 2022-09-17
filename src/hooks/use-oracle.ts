@@ -35,7 +35,7 @@ export function useGetFloorPrice(forAddress: string | undefined = chainConfig[13
     addressOrName: contracts.oracleAddress,
     contractInterface: contracts.oracleABI,
     functionName: 'getFloorPrice',
-    args: forAddress,
+    args: [forAddress],
     watch: true,
     cacheTime: 0
   })
