@@ -12,10 +12,11 @@ import { chainConfig } from '../assets/constants';
 
 export function useMint(onSuccessHandler?: () => void): any {
   const { chain } = useNetwork()
-  
+  const contracts = chainConfig[chain?.id ?? 5];
+
   const { config, error } = usePrepareContractWrite({
-    addressOrName: chainConfig[chain!.id].dummyNFTAddress!,
-    contractInterface: chainConfig[chain!.id].dummyNFTABI,
+    addressOrName: contracts.dummyNFTAddress!,
+    contractInterface: contracts.dummyNFTABI,
     functionName: 'selfMint',
   });
 
@@ -63,7 +64,8 @@ export function useIsApproved(
   contractAddress: string,
   id: string): {isApproved: boolean, error: Error | null, refetch: any} {
     const { chain } = useNetwork();
-    const toAddress = chainConfig[chain!.id].nftLenderAddress;
+    const contracts = chainConfig[chain?.id ?? 5];
+    const toAddress = contracts.nftLenderAddress;
 
     const { data, error, refetch } = useContractRead({
       addressOrName: contractAddress,
@@ -95,30 +97,30 @@ export function useApprove(
     isSuccessApprove: boolean, 
     refetchPrepareApprove: (options?: any) => any} { 
       
-  const { config, refetch: refetchPrepareApprove } = usePrepareContractWrite({
-    addressOrName: contractAddress,
-    contractInterface: erc721ABI,
-    functionName: 'approve',
-    args: [toAddress, id],
-    enabled: Boolean(toAddress) && Boolean(id) && Boolean(owner) && isOwner && !isDeposited,
-    onError(err) {
-      console.log(err);
-      console.log("ERROOOOOOR APPROVE");
-    }
-  })
+    const { config, refetch: refetchPrepareApprove } = usePrepareContractWrite({
+      addressOrName: contractAddress,
+      contractInterface: erc721ABI,
+      functionName: 'approve',
+      args: [toAddress, id],
+      enabled: Boolean(toAddress) && Boolean(id) && Boolean(owner) && isOwner && !isDeposited,
+      onError(err) {
+        console.log(err);
+        console.log("ERROOOOOOR APPROVE");
+      }
+    })
 
-  const { data, write: approve } = useContractWrite(config);
+    const { data, write: approve } = useContractWrite(config);
 
-  const { isLoading: isLoadingApprove, isSuccess: isSuccessApprove } = useWaitForTransaction({
-    confirmations: 1, 
-    hash: data?.hash,
-    onSuccess(data) {
-      onSuccessHandler();
-    },
-    onError(err) {
-      console.log(err);
-    },
-  })
+    const { isLoading: isLoadingApprove, isSuccess: isSuccessApprove } = useWaitForTransaction({
+      confirmations: 1, 
+      hash: data?.hash,
+      onSuccess(data) {
+        onSuccessHandler();
+      },
+      onError(err) {
+        console.log(err);
+      },
+    })
 
-  return {approve, isLoadingApprove, isSuccessApprove, refetchPrepareApprove};
+    return {approve, isLoadingApprove, isSuccessApprove, refetchPrepareApprove};
 }

@@ -16,9 +16,10 @@ export function useDeposit(
     refetchPrepareDeposit: (options?: any) => any,
   } {   
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5]
     const {config, refetch: refetchPrepareDeposit} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'deposit',
       args: [address, ethers.BigNumber.from(id === '' ? 0 : id)],
       enabled: Boolean(id) && Boolean(address) && isApproved && !isDeposited,

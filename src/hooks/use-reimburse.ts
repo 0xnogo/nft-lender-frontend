@@ -18,10 +18,12 @@ export function useReimburseLoan(
     refetchReimburseLoan: (options?: any) => any,
   } {
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
+
     const debtAmount: BigNumber = useGetDebtAmountForLoan(fromAddress, loan);
     const {config, error, refetch: refetchReimburseLoan} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'reimburseLoan',
       args: [ethers.BigNumber.from(Boolean(loanId) ? loanId : 0)],
       overrides: {
@@ -60,11 +62,12 @@ export const useReimburseAllDebt = (
     refetchPrepareReimburseAll: (options?: any) => any,
   } => {
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
     const {fullDebt, refetch} = useGetFullDebt(address);
     
     const {config, error, refetch: refetchPrepareReimburseAll} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'reimburseAllDebt',
       enabled: Boolean(address) && Boolean(fullDebt) && loans.length !== 0,
       overrides: {

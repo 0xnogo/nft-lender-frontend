@@ -17,11 +17,13 @@ export function useWithdraw(
     refetchPrepareWithdraw: (options?: any) => any,
   } {   
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
+    
     const {healthFactor} = useHealthFactor(fromAddress, {contractAddress, id});
         
     const {config, refetch: refetchPrepareWithdraw} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'withdraw',
       args: [contractAddress, ethers.BigNumber.from(Boolean(id) ? id : 0)],
       enabled: Boolean(id) && Boolean(contractAddress) && healthFactor.gt(BigNumber.from('100')),
@@ -54,11 +56,12 @@ export const useWithdrawAll = (
     refetchPrepareWithdrawAll: (options?: any) => any,
   } => {
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
     const {fullDebt, refetch} = useGetFullDebt(address);
     
     const {config, error, refetch: refetchPrepareWithdrawAll} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'withdrawAndReimburseAll',
       enabled: Boolean(address) && Boolean(fullDebt) && deposits.length !== 0,
       overrides: {

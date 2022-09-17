@@ -17,12 +17,14 @@ export function useLiquidateAll(
     refetchLiquidateAll: (options?: any) => any,
   } {
     const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
+
     const debtAmount: BigNumber = useGetFullDebtFor(addressToLiquidate);
     const {healthFactor} = useHealthFactor(addressToLiquidate)
     
     const {config, error, refetch: refetchLiquidateAll} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'liquidateAll',
       args: [addressToLiquidate],
       enabled: Boolean(addressToLiquidate) && healthFactor.lte(BigNumber.from(100)),
@@ -50,12 +52,13 @@ export function useLiquidateAll(
 
 export const useGetUserInDebt = (): string[] => {
   const { chain } = useNetwork();
+  const contracts = chainConfig[chain?.id ?? 5];
   const [users, setUsers] = useState<string[]>([]);
 
   const provider = useProvider();
   const contract: Contract = useContract({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     signerOrProvider: provider
   })
 

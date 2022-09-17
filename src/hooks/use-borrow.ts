@@ -11,24 +11,26 @@ export function useBorrow(
     isSuccessBorrow: boolean,
     refetchPrepareBorrow?: () => void} {
       const { chain } = useNetwork()
-    const {config, error, refetch: refetchPrepareBorrow} = usePrepareContractWrite({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
-      functionName: 'borrow',
-      args: [borrowAmount === '' ? BigNumber.from(0) : parseUnits(borrowAmount)],
-      cacheTime: 0,
-      enabled: Boolean(borrowAmount)
-    })
+      const contracts = chainConfig[chain?.id ?? 5]
 
-    const {data, write: borrow} = useContractWrite(config);
-    const { isLoading: isLoadingBorrow, isSuccess: isSuccessBorrow } = useWaitForTransaction({
-      confirmations: 1,
-      hash: data?.hash,
-      onSuccess() {
-        console.log("SUCCESS");
-        onSuccessHandler?.();
-      }
-    });
+      const {config, error, refetch: refetchPrepareBorrow} = usePrepareContractWrite({
+        addressOrName: contracts.nftLenderAddress,
+        contractInterface: contracts.nftLenderABI,
+        functionName: 'borrow',
+        args: [borrowAmount === '' ? BigNumber.from(0) : parseUnits(borrowAmount)],
+        cacheTime: 0,
+        enabled: Boolean(borrowAmount)
+      })
 
-    return {borrow, isLoadingBorrow, isSuccessBorrow, refetchPrepareBorrow};
+      const {data, write: borrow} = useContractWrite(config);
+      const { isLoading: isLoadingBorrow, isSuccess: isSuccessBorrow } = useWaitForTransaction({
+        confirmations: 1,
+        hash: data?.hash,
+        onSuccess() {
+          console.log("SUCCESS");
+          onSuccessHandler?.();
+        }
+      });
+
+      return {borrow, isLoadingBorrow, isSuccessBorrow, refetchPrepareBorrow};
 }

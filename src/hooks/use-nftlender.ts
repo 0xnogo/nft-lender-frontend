@@ -8,12 +8,13 @@ export const INTEREST_RATE = 316887385;
 
 export function useGetFloorPrice(forAddress?: string | undefined): {floorPrice: BigNumber, isError: boolean, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
+  const contracts = chainConfig[chain?.id ?? 5]
 
-  forAddress = chainConfig[chain!.id].dummyNFTAddress;
+  forAddress = contracts.dummyNFTAddress;
 
   const { data, isError, refetch } = useContractRead({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     functionName: 'getFloorPrice',
     args: [forAddress],
     watch: true,
@@ -27,9 +28,10 @@ export function useGetFloorPrice(forAddress?: string | undefined): {floorPrice: 
 
 export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumber, error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
+  const contracts = chainConfig[chain?.id ?? 5]
   const { data, error, refetch } = useContractRead({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     functionName: 'maxAmountLoan',
     args: [forAddress!],
     enabled: Boolean(forAddress),
@@ -43,9 +45,11 @@ export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan
 
 export function useGetFullDebt(forAddress: string | undefined): {fullDebt: BigNumber, error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
+  const contracts = chainConfig[chain?.id ?? 5]
+
   const { data, error, refetch } = useContractRead({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     functionName: 'getFullDebt',
     enabled: Boolean(forAddress),
     overrides: { from: forAddress },
@@ -68,10 +72,12 @@ export function useWithdrawAmountLeft(forAddress: string | undefined): BigNumber
 export function useHealthFactor(
   forAddress: string | undefined,
   nftToWithdraw?: {contractAddress: string | undefined, id: BigNumber | undefined}): {healthFactor: BigNumber, refetchHealthFactor: any} {
-    const { chain } = useNetwork()
+    const { chain } = useNetwork();
+    const contracts = chainConfig[chain?.id ?? 5];
+
     const { data, error, refetch: refetchHealthFactor } = useContractRead({
-      addressOrName: chainConfig[chain!.id].nftLenderAddress,
-      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      addressOrName: contracts.nftLenderAddress,
+      contractInterface: contracts.nftLenderABI,
       functionName: 'getHealthFactor',
       enabled: Boolean(forAddress),
       overrides: { from: forAddress },
@@ -107,9 +113,11 @@ export function useHealthFactor(
 
 export function useGetDeposits(forAddress: string | undefined): {deposits: IDeposit[], error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork();
+  const contracts = chainConfig[chain?.id ?? 5]
+
   const { data, error, refetch } = useContractRead({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     functionName: 'getDepositFor',
     args: [forAddress],
     enabled: Boolean(forAddress),
@@ -131,9 +139,11 @@ export function useGetDeposits(forAddress: string | undefined): {deposits: IDepo
 
 export function useGetLoans(forAddress: string | undefined): {loans: ILoan[], error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
+  const contracts = chainConfig[chain?.id ?? 5]
+  
   const { data, error, refetch } = useContractRead({
-    addressOrName: chainConfig[chain!.id].nftLenderAddress,
-    contractInterface: chainConfig[chain!.id].nftLenderABI,
+    addressOrName: contracts.nftLenderAddress,
+    contractInterface: contracts.nftLenderABI,
     functionName: 'getLoanFor',
     args: [forAddress],
     enabled: Boolean(forAddress),
