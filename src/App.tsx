@@ -19,8 +19,15 @@ import { Manage } from './pages/Manage/Manage';
 const GOERLI_ANKR_ID = process.env.GOERLI_ANKR_ID
 const GOERLI_ANKR_RPC: string = `https://rpc.ankr.com/eth_goerli/${GOERLI_ANKR_ID}`
 
+let allowedChains = [];
+if (process.env.NODE_ENV === 'development') {
+  allowedChains.push(chain.localhost);
+} else if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production') {
+  allowedChains.push(chain.goerli);
+}
+
 const { chains, provider, webSocketProvider } = configureChains(
-  [chain.goerli, chain.localhost], [
+  allowedChains, [
   jsonRpcProvider({
     rpc: (_chain) => {
       if (_chain.id === chain.goerli.id) return { http: GOERLI_ANKR_RPC }
