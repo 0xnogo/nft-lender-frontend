@@ -1,31 +1,29 @@
-import { configureChains, createClient, WagmiConfig, chain } from 'wagmi';
-
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { publicProvider } from 'wagmi/providers/public'
-
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-
 import './App.css';
-import { Header } from './components/Header/Header';
-import { Manage } from './pages/Manage/Manage';
-import { Route, Routes } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard/Dashboard';
-import { Admin } from './pages/Admin/Admin';
-import { Footer } from './components/UI/Footer/Footer';
 
-// To hide before commit and push
-const mainnetAnkrRPC: string = 'https://rpc.ankr.com/eth/TO_DEFINE'
-const goerliAnkrRPC: string = 'https://rpc.ankr.com/eth_goerli/TO_DEFINE'
+import { ConnectKitProvider } from 'connectkit';
+import { Route, Routes } from 'react-router-dom';
+import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { publicProvider } from 'wagmi/providers/public';
+
+import { Header } from './components/Header/Header';
+import { Footer } from './components/UI/Footer/Footer';
+import { Admin } from './pages/Admin/Admin';
+import { Dashboard } from './pages/Dashboard/Dashboard';
+import { Manage } from './pages/Manage/Manage';
+
+const GOERLI_ANKR_ID = process.env.GOERLI_ANKR_ID
+const GOERLI_ANKR_RPC: string = `https://rpc.ankr.com/eth_goerli/${GOERLI_ANKR_ID}`
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [chain.localhost], [
+  [chain.goerli, chain.localhost], [
   jsonRpcProvider({
     rpc: (_chain) => {
-      if (_chain.id === chain.mainnet.id) return { http: mainnetAnkrRPC }
-      if (_chain.id === chain.goerli.id) return { http: goerliAnkrRPC }
+      if (_chain.id === chain.goerli.id) return { http: GOERLI_ANKR_RPC }
       return { http: "http://localhost:8545" }
     },
   }),
@@ -63,17 +61,19 @@ const client = createClient({
 const App: React.FC<{}> = (props) => {
   return (
     <WagmiConfig client={client}>
-      <div className="dark flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
-        <Header />
-        <div className='container mx-auto w-3/4 justify-self-start'>
-          <Routes>
-            <Route index element={<Dashboard />} />
-            <Route path="/manage" element={<Manage />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
+      <ConnectKitProvider>
+        <div className="dark flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
+          <Header />
+          <div className='container mx-auto w-3/4 justify-self-start'>
+            <Routes>
+              <Route index element={<Dashboard />} />
+              <Route path="/manage" element={<Manage />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </ConnectKitProvider>
     </WagmiConfig>
   );
 }

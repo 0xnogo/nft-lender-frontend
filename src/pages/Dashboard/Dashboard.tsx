@@ -17,6 +17,8 @@ export const Dashboard= (props: any): JSX.Element => {
   const {loans} = useGetLoans(address);
   const {floorPrice} = useGetFloorPrice()
 
+  const {isConnected} = useAccount();
+
   const borrowedAmount = loans.reduce((prev, next) => prev.add(next.amount), BigNumber.from(0));
 
   const healthFactorDisplay = () => {
@@ -42,17 +44,18 @@ export const Dashboard= (props: any): JSX.Element => {
   }
 
   return <div className='flex flex-col w-full gap-y-10'>
-      <div className='flex flex-row justify-center items-center w-full'>
+      {isConnected && <div className='flex flex-row justify-center items-center w-full'>
         <div className="grid grid-cols-4 gap-x-2 h-28">
           <MetricBox title="NFT deposited" text={deposits.length.toLocaleString()} icon={<ArchiveBoxArrowDownIcon className="h-10 w-10 text-white" aria-hidden="true"/>}/>
           <MetricBox title="Borrowed amount" text={`${truncateAndConvertBNtoString(borrowedAmount)} ETH`} icon={<CheckIcon className="h-10 w-10 text-white" aria-hidden="true"/>}/>
           <MetricBox title="Interest amount" text={`${truncateAndConvertBNtoString(fullDebt.sub(borrowedAmount))} ETH`} icon={<CalculatorIcon className="h-10 w-10 text-white" aria-hidden="true"/>}/>
           <MetricBox title="Health Factor" text={healthFactorDisplay()} icon={<HeartIcon className="h-10 w-10 text-white" aria-hidden="true"/>}/>
         </div>
-      </div>
-      <div className='flex justify-around gap-x-2'>
+      </div>}
+      {isConnected && <div className='flex justify-around gap-x-2'>
         <Table title='Deposits' headCells={["Collection address", "Token id", "Floor price", "Date of Deposit"]} bodyCells={depositsBody(deposits)} />
         <Table title='Loans' headCells={["Amount", "Start time"]} bodyCells={loansBody(loans)} />
-      </div>
+      </div>}
+      {!isConnected && <div className='p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet.</div>}
     </div>
 }

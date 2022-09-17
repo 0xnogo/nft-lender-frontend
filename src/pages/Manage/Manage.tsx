@@ -1,4 +1,5 @@
 import { Tab } from '@headlessui/react';
+import { useAccount } from 'wagmi';
 
 import { Borrow } from '../../components/Borrow/Borrow';
 import { Deposit } from '../../components/Deposit/Deposit';
@@ -17,8 +18,11 @@ const content = [
 ]
 
 export const Manage = (props: any) => {
+  const {isConnected} = useAccount();
+
   return (
     <div className="flex flex-col justify-center items-center w-full">
+    {isConnected &&
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 w-full">
           {content.map((item, i) => {
@@ -54,6 +58,7 @@ export const Manage = (props: any) => {
             )
           })}
         </Tab.Panels>
-      </Tab.Group>
+      </Tab.Group>}
+      {!isConnected && <div className='p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet.</div>}
     </div>);
 }
