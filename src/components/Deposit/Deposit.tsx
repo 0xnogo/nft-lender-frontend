@@ -13,10 +13,10 @@ const inputStyle = "rounded-md bg-black p-4 focus:outline-none outline outline-1
 
 // 1 - make this example working with this hacky approach (all in the same component)
 // 2 - create hook with form state
-export const Deposit: React.FC<{}> = (props) => {
+export const Deposit = () => {
   // state
   const { chain } = useNetwork();
-  const [nftAddress, setNftAddress] = useState(chainConfig[chain!.id].nftLenderAddress);
+  const [nftAddress, setNftAddress] = useState(chainConfig[chain!.id].dummyNFTAddress);
   const [nftId, setNftId] = useState("");
   const { address } = useAccount()
 
@@ -24,20 +24,20 @@ export const Deposit: React.FC<{}> = (props) => {
   const [debounceNftId] = useDebounce(nftId, 500);
 
   // nft data
-  const {isApproved, refetch: refetchIsApproved} = useIsApproved(debounceNftAddress, debounceNftId);
-  const {owner, refetch: refetchGetOwner} = useGetOwner(debounceNftAddress, debounceNftId);
+  const {isApproved, refetch: refetchIsApproved} = useIsApproved(debounceNftAddress!, debounceNftId);
+  const {owner, refetch: refetchGetOwner} = useGetOwner(debounceNftAddress!, debounceNftId);
   const isDeposited = owner === chainConfig[chain!.id].nftLenderAddress;
   const isOwner = owner === address?.toLocaleLowerCase();
 
   // deposit
   const {deposit, isLoadingDeposit, refetchPrepareDeposit} = 
-    useDeposit(debounceNftAddress, debounceNftId, () => {
+    useDeposit(debounceNftAddress!, debounceNftId, () => {
       refetchGetOwner?.()
     }, isApproved, isDeposited);
 
   // approve
   const {approve, isLoadingApprove} = 
-    useApprove(debounceNftAddress, chainConfig[chain!.id].nftLenderAddress, debounceNftId, () => {
+    useApprove(debounceNftAddress!, chainConfig[chain!.id].nftLenderAddress, debounceNftId, () => {
       refetchIsApproved?.();
       refetchPrepareDeposit?.();
     }, isOwner, isDeposited, owner);
