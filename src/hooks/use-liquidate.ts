@@ -66,10 +66,8 @@ export const useGetUserInDebt = (): string[] => {
         if (!acc.includes(item.args!["from"])) {
           acc.push(item.args!["from"])
         }
-
         return acc;
       }, [])
-
       setUsers(filtered);
     }
     try {

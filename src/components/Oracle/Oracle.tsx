@@ -34,7 +34,7 @@ export const Oracle = (props: any): JSX.Element => {
             defaultValue={floorPrice} 
             onChange={(e) => setFloorPriceInput(e.target.value)} 
             className={inputStyle} />
-        <Button disabled={!setFloorPrice} text="Change oracle price" onClickHandler={onChangeOracleHandler} style="btn-primary" styleAdded="self-center"/>
       </form>
+      <Button disabled={!setFloorPrice} text="Change oracle price" onClickHandler={onChangeOracleHandler} style="btn-primary" styleAdded="self-center"/>
     </Container>)
 }

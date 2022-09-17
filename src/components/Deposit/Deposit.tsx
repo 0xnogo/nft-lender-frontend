@@ -65,9 +65,9 @@ export const Deposit: React.FC<{}> = (props) => {
           defaultValue={nftId} 
           onChange={(e) => setNftId(e.target.value)} 
           className={inputStyle} />
-        {isApproved && !isDeposited && <Button disabled={!deposit} text={isLoadingDeposit ? "Depositing..." : "Deposit"} onClickHandler={onDepositHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>}
-        {!isApproved && !isDeposited && <Button disabled={!approve} text={isLoadingApprove ? 'Approving...' : 'Approve'} onClickHandler={onApproveHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>}
-        {isDeposited && <Button disabled={isDeposited} text="Already deposited" onClickHandler={() => {}} style="btn-primary" styleAdded="w-1/3 self-center"/>}
       </form>
+      {isApproved && !isDeposited && <Button disabled={!deposit} text={isLoadingDeposit ? "Depositing..." : "Deposit"} onClickHandler={onDepositHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>}
+      {!isApproved && !isDeposited && <Button disabled={!approve} text={isLoadingApprove ? 'Approving...' : 'Approve'} onClickHandler={onApproveHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>}
+      {isDeposited && <Button disabled={isDeposited} text="Already deposited" onClickHandler={() => {}} style="btn-primary" styleAdded="w-1/3 self-center"/>}
     </Container>);
 }

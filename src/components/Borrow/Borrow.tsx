@@ -56,7 +56,7 @@ export const Borrow = (props: any): JSX.Element => {
           value={borrowAmount} 
           onChange={(e) => onChangeAmountHandler(e)} 
           className={inputStyle + (isValid ? "" : " outline-red-900 hover:outline-red-900 focus:outline-1 focus:outline-red-900")} />
-        <Button disabled={!borrow || !isValid} text={buttonText()} onClickHandler={onBorrowHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>
       </form>
+      <Button disabled={!borrow || !isValid} text={buttonText()} onClickHandler={onBorrowHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>
     </Container>);
 }
