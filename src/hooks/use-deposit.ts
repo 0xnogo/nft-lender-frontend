@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import { NFTLENDER_ABI, NFTLENDER_CONTRACT_ADDRESS } from "./use-nftlender";
+import { useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { chainConfig } from "../assets/constants";
 
 export function useDeposit(
   address: string, 
@@ -15,16 +15,17 @@ export function useDeposit(
     isSuccessDeposit: boolean,
     refetchPrepareDeposit: (options?: any) => any,
   } {   
-  const {config, refetch: refetchPrepareDeposit} = usePrepareContractWrite({
-    addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-    contractInterface: NFTLENDER_ABI,
-    functionName: 'deposit',
-    args: [address, ethers.BigNumber.from(id === '' ? 0 : id)],
-    enabled: Boolean(id) && Boolean(address) && isApproved && !isDeposited,
-    onError(err) {
-      console.log(err);
-      console.log("ERROOOOOOR");
-    }
+    const { chain } = useNetwork();
+    const {config, refetch: refetchPrepareDeposit} = usePrepareContractWrite({
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
+      functionName: 'deposit',
+      args: [address, ethers.BigNumber.from(id === '' ? 0 : id)],
+      enabled: Boolean(id) && Boolean(address) && isApproved && !isDeposited,
+      onError(err) {
+        console.log(err);
+        console.log("ERROOOOOOR");
+      }
   })
 
   const { data: dataDeposit, write: deposit } = useContractWrite(config);

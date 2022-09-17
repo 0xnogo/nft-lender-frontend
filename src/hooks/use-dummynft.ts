@@ -1,17 +1,21 @@
 import { BigNumber } from 'ethers';
-import { Interface } from 'ethers/lib/utils';
-import { erc721ABI, useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import {
+  erc721ABI,
+  useContractRead,
+  useContractWrite,
+  useNetwork,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
-import dummyNFTJSON from '../assets/abis/DummyNFT.json';
-import { NFTLENDER_CONTRACT_ADDRESS } from './use-nftlender';
-
-const DUMMYNFT_CONTRACT_ABI = new Interface(dummyNFTJSON.abi);
-export const DUMMYNFT_CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
+import { chainConfig } from '../assets/constants';
 
 export function useMint(onSuccessHandler?: () => void): any {
+  const { chain } = useNetwork()
+  
   const { config, error } = usePrepareContractWrite({
-    addressOrName: DUMMYNFT_CONTRACT_ADDRESS,
-    contractInterface: DUMMYNFT_CONTRACT_ABI,
+    addressOrName: chainConfig[chain!.id].dummyNFTAddress!,
+    contractInterface: chainConfig[chain!.id].dummyNFTABI,
     functionName: 'selfMint',
   });
 
@@ -57,22 +61,24 @@ export function useGetOwner(
 
 export function useIsApproved(
   contractAddress: string,
-  id: string,
-  toAddress: string = NFTLENDER_CONTRACT_ADDRESS): {isApproved: boolean, error: Error | null, refetch: any} {
-  const { data, error, refetch } = useContractRead({
-    addressOrName: contractAddress,
-    contractInterface: erc721ABI,
-    functionName: 'getApproved',
-    args: [id],
-    watch: true,
-  });
+  id: string): {isApproved: boolean, error: Error | null, refetch: any} {
+    const { chain } = useNetwork();
+    const toAddress = chainConfig[chain!.id].nftLenderAddress;
 
-  let isApproved: boolean = false;
-  if (toAddress.toLocaleLowerCase() === data?.toString().toLocaleLowerCase()) {
-    isApproved = true;
-  }
+    const { data, error, refetch } = useContractRead({
+      addressOrName: contractAddress,
+      contractInterface: erc721ABI,
+      functionName: 'getApproved',
+      args: [id],
+      watch: true,
+    });
 
-  return {isApproved, error, refetch};
+    let isApproved: boolean = false;
+    if (toAddress.toLocaleLowerCase() === data?.toString().toLocaleLowerCase()) {
+      isApproved = true;
+    }
+
+    return {isApproved, error, refetch};
 }
 
 export function useApprove(

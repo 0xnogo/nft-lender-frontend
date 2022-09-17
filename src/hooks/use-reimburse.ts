@@ -1,7 +1,9 @@
-import { BigNumber, ethers } from "ethers";
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import { IDeposit, ILoan } from "../utils/interfaces";
-import { NFTLENDER_ABI, NFTLENDER_CONTRACT_ADDRESS, useGetDebtAmountForLoan, useGetFullDebt, useHealthFactor } from "./use-nftlender";
+import { BigNumber, ethers } from 'ethers';
+import { useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { chainConfig } from '../assets/constants';
+
+import { ILoan } from '../utils/interfaces';
+import { useGetDebtAmountForLoan, useGetFullDebt } from './use-nftlender';
 
 export function useReimburseLoan(
   fromAddress: string | undefined, 
@@ -15,11 +17,11 @@ export function useReimburseLoan(
     isSuccessReimburseLoan: boolean,
     refetchReimburseLoan: (options?: any) => any,
   } {
+    const { chain } = useNetwork();
     const debtAmount: BigNumber = useGetDebtAmountForLoan(fromAddress, loan);
-    
     const {config, error, refetch: refetchReimburseLoan} = usePrepareContractWrite({
-      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-      contractInterface: NFTLENDER_ABI,
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
       functionName: 'reimburseLoan',
       args: [ethers.BigNumber.from(Boolean(loanId) ? loanId : 0)],
       overrides: {
@@ -57,11 +59,12 @@ export const useReimburseAllDebt = (
     isSuccessReimburseAll: boolean,
     refetchPrepareReimburseAll: (options?: any) => any,
   } => {
+    const { chain } = useNetwork();
     const {fullDebt, refetch} = useGetFullDebt(address);
     
     const {config, error, refetch: refetchPrepareReimburseAll} = usePrepareContractWrite({
-      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-      contractInterface: NFTLENDER_ABI,
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
       functionName: 'reimburseAllDebt',
       enabled: Boolean(address) && Boolean(fullDebt) && loans.length !== 0,
       overrides: {

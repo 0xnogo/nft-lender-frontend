@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
+import { chainConfig } from '../../assets/constants';
 import { useDeposit } from '../../hooks/use-deposit';
 
-import { DUMMYNFT_CONTRACT_ADDRESS, useApprove, useGetOwner, useIsApproved } from '../../hooks/use-dummynft';
-import { NFTLENDER_CONTRACT_ADDRESS } from '../../hooks/use-nftlender';
+import { useApprove, useGetOwner, useIsApproved } from '../../hooks/use-dummynft';
+
 import { Button } from '../UI/Button/Button';
 import { Container } from '../UI/Container/Container';
 
@@ -14,7 +15,8 @@ const inputStyle = "rounded-md bg-black p-4 focus:outline-none outline outline-1
 // 2 - create hook with form state
 export const Deposit: React.FC<{}> = (props) => {
   // state
-  const [nftAddress, setNftAddress] = useState(DUMMYNFT_CONTRACT_ADDRESS);
+  const { chain } = useNetwork();
+  const [nftAddress, setNftAddress] = useState(chainConfig[chain!.id].nftLenderAddress);
   const [nftId, setNftId] = useState("");
   const { address } = useAccount()
 
@@ -24,7 +26,7 @@ export const Deposit: React.FC<{}> = (props) => {
   // nft data
   const {isApproved, refetch: refetchIsApproved} = useIsApproved(debounceNftAddress, debounceNftId);
   const {owner, refetch: refetchGetOwner} = useGetOwner(debounceNftAddress, debounceNftId);
-  const isDeposited = owner === NFTLENDER_CONTRACT_ADDRESS;
+  const isDeposited = owner === chainConfig[chain!.id].nftLenderAddress;
   const isOwner = owner === address?.toLocaleLowerCase();
 
   // deposit
@@ -35,7 +37,7 @@ export const Deposit: React.FC<{}> = (props) => {
 
   // approve
   const {approve, isLoadingApprove} = 
-    useApprove(debounceNftAddress, NFTLENDER_CONTRACT_ADDRESS, debounceNftId, () => {
+    useApprove(debounceNftAddress, chainConfig[chain!.id].nftLenderAddress, debounceNftId, () => {
       refetchIsApproved?.();
       refetchPrepareDeposit?.();
     }, isOwner, isDeposited, owner);

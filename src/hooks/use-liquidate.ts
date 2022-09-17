@@ -1,8 +1,9 @@
 import { BigNumber, Contract } from 'ethers';
 import { useEffect, useState } from 'react';
-import { useContract, useContractWrite, usePrepareContractWrite, useProvider, useWaitForTransaction } from 'wagmi';
+import { useContract, useContractWrite, useNetwork, usePrepareContractWrite, useProvider, useWaitForTransaction } from 'wagmi';
+import { chainConfig } from '../assets/constants';
 
-import { getDebtAmountForLoan, NFTLENDER_ABI, NFTLENDER_CONTRACT_ADDRESS, useGetLoans, useHealthFactor } from './use-nftlender';
+import { getDebtAmountForLoan, useGetLoans, useHealthFactor } from './use-nftlender';
 
 export function useLiquidateAll(
   addressToLiquidate: string | undefined, 
@@ -15,13 +16,13 @@ export function useLiquidateAll(
     isSuccessLiquidateAll: boolean,
     refetchLiquidateAll: (options?: any) => any,
   } {
-
+    const { chain } = useNetwork();
     const debtAmount: BigNumber = useGetFullDebtFor(addressToLiquidate);
     const {healthFactor} = useHealthFactor(addressToLiquidate)
     
     const {config, error, refetch: refetchLiquidateAll} = usePrepareContractWrite({
-      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-      contractInterface: NFTLENDER_ABI,
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
       functionName: 'liquidateAll',
       args: [addressToLiquidate],
       enabled: Boolean(addressToLiquidate) && healthFactor.lte(BigNumber.from(100)),
@@ -48,12 +49,13 @@ export function useLiquidateAll(
 }
 
 export const useGetUserInDebt = (): string[] => {
+  const { chain } = useNetwork();
   const [users, setUsers] = useState<string[]>([]);
 
   const provider = useProvider();
   const contract: Contract = useContract({
-    addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-    contractInterface: NFTLENDER_ABI,
+    addressOrName: chainConfig[chain!.id].nftLenderAddress,
+    contractInterface: chainConfig[chain!.id].nftLenderABI,
     signerOrProvider: provider
   })
 

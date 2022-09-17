@@ -1,7 +1,8 @@
 import { BigNumber, ethers } from "ethers";
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
+import { chainConfig } from "../assets/constants";
 import { IDeposit } from "../utils/interfaces";
-import { NFTLENDER_ABI, NFTLENDER_CONTRACT_ADDRESS, useGetFullDebt, useHealthFactor } from "./use-nftlender";
+import { useGetFullDebt, useHealthFactor } from "./use-nftlender";
 
 export function useWithdraw(
   contractAddress: string | undefined, 
@@ -15,11 +16,12 @@ export function useWithdraw(
     isSuccessWithdraw: boolean,
     refetchPrepareWithdraw: (options?: any) => any,
   } {   
+    const { chain } = useNetwork();
     const {healthFactor} = useHealthFactor(fromAddress, {contractAddress, id});
         
     const {config, refetch: refetchPrepareWithdraw} = usePrepareContractWrite({
-      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-      contractInterface: NFTLENDER_ABI,
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
       functionName: 'withdraw',
       args: [contractAddress, ethers.BigNumber.from(Boolean(id) ? id : 0)],
       enabled: Boolean(id) && Boolean(contractAddress) && healthFactor.gt(BigNumber.from('100')),
@@ -51,11 +53,12 @@ export const useWithdrawAll = (
     isSuccessWithdrawAll: boolean,
     refetchPrepareWithdrawAll: (options?: any) => any,
   } => {
+    const { chain } = useNetwork();
     const {fullDebt, refetch} = useGetFullDebt(address);
     
     const {config, error, refetch: refetchPrepareWithdrawAll} = usePrepareContractWrite({
-      addressOrName: NFTLENDER_CONTRACT_ADDRESS,
-      contractInterface: NFTLENDER_ABI,
+      addressOrName: chainConfig[chain!.id].nftLenderAddress,
+      contractInterface: chainConfig[chain!.id].nftLenderABI,
       functionName: 'withdrawAndReimburseAll',
       enabled: Boolean(address) && Boolean(fullDebt) && deposits.length !== 0,
       overrides: {
