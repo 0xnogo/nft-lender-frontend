@@ -1,5 +1,6 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { Spinner } from 'flowbite-react';
 import { Fragment, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
@@ -30,7 +31,7 @@ export const Liquidate = (props: any): JSX.Element => {
 
   const buttonText = () => {    
     if (errorLiquidateAll) return errorLiquidateAll;
-    if (isLoadingLiquidateAll) return "Liquidating...";
+    if (isLoadingLiquidateAll) return <><Spinner /> Loading...</>;
     return "Liquidate";
   }
 

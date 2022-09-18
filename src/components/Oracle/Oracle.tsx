@@ -1,8 +1,9 @@
+import { Spinner } from 'flowbite-react';
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useNetwork } from 'wagmi';
-import { chainConfig } from '../../assets/constants';
 
+import { chainConfig } from '../../assets/constants';
 import { Button } from '../../components/UI/Button/Button';
 import { Container } from '../../components/UI/Container/Container';
 import { useGetFloorPrice } from '../../hooks/use-nftlender';
@@ -26,6 +27,10 @@ export const Oracle = (props: any): JSX.Element => {
     setFloorPrice?.()
   }
 
+  const generateButtonText = (text: string, isLoading?: boolean) => {
+    return isLoading? <><Spinner /> Loading...</> : text;
+  }
+
   return (
     <Container title="Change oracle price">
       <p>To trigger liquidation, you can change the NFT floor price. The same price is applied for all NFTs. Ideally, we could have integrated with a real oracle.</p>
@@ -37,7 +42,7 @@ export const Oracle = (props: any): JSX.Element => {
             defaultValue={floorPrice} 
             onChange={(e) => setFloorPriceInput(e.target.value)} 
             className={inputStyle} />
-        <Button disabled={!setFloorPrice} text="Change oracle price" onClickHandler={onChangeOracleHandler} style="btn-primary" styleAdded="self-center"/>
+        <Button disabled={!setFloorPrice} text={generateButtonText("Change oracle price", isLoadingSetFloorPrice)} onClickHandler={onChangeOracleHandler} style="btn-primary" styleAdded="self-center"/>
       </form>
     </Container>)
 }

@@ -47,7 +47,7 @@ export const Borrow = (props: any): JSX.Element => {
 
   const generateButtonText = (text: string, isLoading?: boolean) => {
     if (!isValid) return "Amount asked exceeding maximum allowed";
-    return isLoading? <><Spinner />Loading...</> : text;
+    return isLoading? <><Spinner /> Loading...</> : text;
   }
 
   return (

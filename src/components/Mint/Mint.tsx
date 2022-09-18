@@ -14,12 +14,8 @@ export const Mint = (props: any): JSX.Element => {
   const { chain } = useNetwork();
 
   const {mint, isLoadingMint} = useMint((data) => {
-    
-    let textAddendum = undefined
-    if (chain?.id !== 5) {
-      const txHashLink = `https://goerli.etherscan.io/tx/${data["transactionHash"]}`;
-      textAddendum = `Check <a class='font-medium text-blue-500 underline' href='${txHashLink}' target='_blank'>transaction</a> to get the id for the NFT.`
-    }
+    const txHashLink = `https://goerli.etherscan.io/tx/${data["transactionHash"]}`;
+    const textAddendum = `Check <a class='font-medium text-blue-500 underline' href='${txHashLink}' target='_blank'>transaction</a> to get the id for the NFT.`
     onAlertHandler({message: `Mint successful. ${textAddendum}`, alertType: "success"});
   });
   
@@ -28,7 +24,7 @@ export const Mint = (props: any): JSX.Element => {
   }
 
   const generateButtonText = (text: string, isLoading?: boolean) => {
-    return isLoading? <><Spinner />Loading...</> : text;
+    return isLoading? <><Spinner /> Loading...</> : text;
   }
   
   return (

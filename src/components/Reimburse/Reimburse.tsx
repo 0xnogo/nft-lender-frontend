@@ -69,7 +69,7 @@ export const Reimburse = (props: any): JSX.Element => {
 
 
   const generateButtonText = (text: string, isLoading?: boolean) => {
-    return isLoading? <><Spinner />Loading...</> : text;
+    return isLoading? <><Spinner /> Loading...</> : text;
   }
 
   return (

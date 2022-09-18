@@ -59,7 +59,7 @@ export const Deposit = () => {
 
   const generateButtonText = (text: string, isLoading?: boolean) => {
     if ((!isApproved || !isDeposited) && !isOwner) return "Not owner"
-    return isLoading? <><Spinner />Loading...</> : text;
+    return isLoading? <><Spinner /> Loading...</> : text;
   }
 
   return (
