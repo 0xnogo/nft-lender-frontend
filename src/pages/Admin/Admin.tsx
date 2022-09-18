@@ -15,7 +15,7 @@ export const Admin = (props: any): JSX.Element => {
       </div>}
     {!isConnected && 
       <div className='flex flex-col justify-center items-center w-full'>
-        <div className='p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet.</div>
+        <div className='p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet. (Goerli)</div>
       </div>}
   </>)
 }

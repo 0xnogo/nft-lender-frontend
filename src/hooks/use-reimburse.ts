@@ -16,7 +16,7 @@ export function useReimburseLoan(
     isLoadingReimburseLoan: boolean,
     isSuccessReimburseLoan: boolean,
     refetchReimburseLoan: (options?: any) => any,
-  } {
+  } {    
     const { chain } = useNetwork();
     const contracts = chainConfig[chain?.id ?? 5];
 
@@ -30,7 +30,7 @@ export function useReimburseLoan(
         from: fromAddress,
         value: debtAmount
       },
-      enabled: Boolean(fromAddress),
+      enabled: Boolean(fromAddress) && Boolean(loan),
       onError(err) {
         console.log("ERROOOOOOR");
         console.log(err);

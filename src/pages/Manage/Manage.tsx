@@ -59,6 +59,6 @@ export const Manage = (props: any) => {
           })}
         </Tab.Panels>
       </Tab.Group>}
-      {!isConnected && <div className='p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet.</div>}
+      {!isConnected && <div className='text-white p-4 bg-gray-800 gap-y-4 rounded-md w-1/3 text-center justify-items-center self-center'>Please connect your wallet. (Goerli)</div>}
     </div>);
 }

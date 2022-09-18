@@ -1,12 +1,14 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
-import { Fragment, useState } from 'react';
+import { Spinner } from 'flowbite-react';
+import { Fragment, useContext, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import { useGetDebtAmountForLoan, useGetFullDebt, useGetLoans } from '../../hooks/use-nftlender';
 import { useReimburseAllDebt, useReimburseLoan } from '../../hooks/use-reimburse';
+import AlertContext from '../../store/alert-context';
 import { fromSecToFormattedDate } from '../../utils';
 import { ILoan } from '../../utils/interfaces';
 import { Button } from '../UI/Button/Button';
@@ -17,6 +19,9 @@ const generateTitle = (loan: ILoan): string => {
 }
 
 export const Reimburse = (props: any): JSX.Element => {
+  // context
+  const {onAlertHandler} = useContext(AlertContext);
+
   const {address} = useAccount();
   const [loanIdSelected, setLoanIdSelected] = useState<number>(0)
   
@@ -24,18 +29,18 @@ export const Reimburse = (props: any): JSX.Element => {
   const {fullDebt, refetch: refetchFullDebt} = useGetFullDebt(address);
   const debtAmount: BigNumber = useGetDebtAmountForLoan(address, loans[loanIdSelected]);
 
-  const {reimburseAll, refetchPrepareReimburseAll} = useReimburseAllDebt(address, loans, () => {
-    console.log("SUCCESS");
+  const {reimburseAll, isLoadingReimburseAll, refetchPrepareReimburseAll} = useReimburseAllDebt(address, loans, () => {
+    onAlertHandler({message: "Reimburse all successful", alertType: "success"})
     refetchLoans?.();
     refetchPrepareReimburseAll?.();
   });
 
-  const {reimburseLoan, refetchReimburseLoan} = useReimburseLoan(
+  const {reimburseLoan, isLoadingReimburseLoan, refetchReimburseLoan} = useReimburseLoan(
     address,
     loanIdSelected,
     loans[loanIdSelected],  
     () => {
-      console.log("SUCCESS");
+      onAlertHandler({message: "Reimburse loan successful", alertType: "success"})
       refetchLoans?.();
       setLoanIdSelected(0);
       refetchReimburseLoan?.();
@@ -60,6 +65,11 @@ export const Reimburse = (props: any): JSX.Element => {
         value: fullDebt.add(fullDebt.mul(10).div(100))
       }
     });
+  }
+
+
+  const generateButtonText = (text: string, isLoading?: boolean) => {
+    return isLoading? <><Spinner />Loading...</> : text;
   }
 
   return (
@@ -106,7 +116,7 @@ export const Reimburse = (props: any): JSX.Element => {
       }
       {loans.length === 0 && <p>No loan made</p>}
         
-      <Button text="Reimburse" style="btn-primary" onClickHandler={onReimburseHandler} disabled={!reimburseLoan} styleAdded="w-1/3 self-center" />
-      <Button text="Reimburse all" style="btn-primary" onClickHandler={onReimburseAllHandler} disabled={!reimburseAll} styleAdded="w-1/3 self-center"/>
+      <Button text={generateButtonText("Reimburse", isLoadingReimburseLoan)} style="btn-primary" onClickHandler={onReimburseHandler} disabled={!reimburseLoan} styleAdded="w-1/3 self-center" />
+      <Button text={generateButtonText("Reimburse all", isLoadingReimburseAll)} style="btn-primary" onClickHandler={onReimburseAllHandler} disabled={!reimburseAll} styleAdded="w-1/3 self-center"/>
     </Container>);
 }

@@ -10,12 +10,15 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { publicProvider } from 'wagmi/providers/public';
 
+import { chainConfig } from './assets/constants';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/UI/Footer/Footer';
 import { Admin } from './pages/Admin/Admin';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 import { Manage } from './pages/Manage/Manage';
-import { chainConfig } from './assets/constants';
+import AlertProvider from './store/AlertProvider';
+
+
 
 let allowedChains = [];
 if (process.env.NODE_ENV === 'development') {
@@ -66,13 +69,15 @@ const App: React.FC<{}> = (props) => {
       <ConnectKitProvider>
         <div className="dark flex flex-col justify-between bg-black text-white min-h-screen gap-y-12">
           <Header />
-          <div className='container mx-auto w-3/4 justify-self-start'>
-            <Routes>
-              <Route index element={<Dashboard />} />
-              <Route path="/manage" element={<Manage />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </div>
+            <AlertProvider>
+              <div className='container mx-auto w-3/4 justify-self-start'>
+                  <Routes>
+                    <Route index element={<Dashboard />} />
+                    <Route path="/manage" element={<Manage />} />
+                    <Route path="/admin" element={<Admin />} />
+                  </Routes>
+              </div>
+            </AlertProvider>
           <Footer />
         </div>
       </ConnectKitProvider>

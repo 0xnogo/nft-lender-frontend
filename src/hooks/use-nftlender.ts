@@ -57,7 +57,7 @@ export function useGetFullDebt(forAddress: string | undefined): {fullDebt: BigNu
     cacheTime: 0
   });
   
-  const fullDebt: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
+  const fullDebt: BigNumber = data? BigNumber.from(data): BigNumber.from(0);
   
   return { fullDebt, error, refetch };
 }
@@ -74,42 +74,42 @@ export function useHealthFactor(
   nftToWithdraw?: {contractAddress: string | undefined, id: BigNumber | undefined}): {healthFactor: BigNumber, refetchHealthFactor: any} {
     const { chain } = useNetwork();
     const contracts = chainConfig[chain?.id ?? 5];
-
+    
     const { data, error, refetch: refetchHealthFactor } = useContractRead({
       addressOrName: contracts.nftLenderAddress,
       contractInterface: contracts.nftLenderABI,
       functionName: 'getHealthFactor',
-      enabled: Boolean(forAddress),
+      enabled: Boolean(forAddress) && !nftToWithdraw,
       overrides: { from: forAddress },
       watch: true
     });
+
+    const {deposits} = useGetDeposits(forAddress);
+    const {fullDebt} = useGetFullDebt(forAddress);
+    const {floorPrice} = useGetFloorPrice(nftToWithdraw?.contractAddress)
     
-    const healthFactor: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
-    
-    return { healthFactor, refetchHealthFactor };
-  // const {deposits} = useGetDeposits(forAddress);
-  // const {fullDebt} = useGetFullDebt(forAddress)
-
-  // if (fullDebt.eq(BigNumber.from('0'))) {
-  //   return BigNumber.from('200');
-  // }
-
-  // let collateral = deposits.reduce((prevVal, currVal) => {   
-  //   if (Boolean(nftToWithdraw) 
-  //     && nftToWithdraw!.contractAddress! === currVal.address 
-  //     && nftToWithdraw!.id!.eq(currVal.tokenId)) {
-  //     return prevVal;
-  //   }
-  //   return prevVal.add(ethers.utils.parseEther('1'));
-  // }, BigNumber.from('0'));
-
-  // const liquidationThreshold = collateral
-  //   .mul(BigNumber.from('8000'))
-  //   .div(BigNumber.from('100'));
-
-  // return liquidationThreshold.div(fullDebt);
+    if (!nftToWithdraw) {
+      const healthFactor: BigNumber = data? BigNumber.from(data) : BigNumber.from(0);
+      return { healthFactor, refetchHealthFactor };
+    } else {
+      if (fullDebt.eq(BigNumber.from('0'))) {
+        return { healthFactor: BigNumber.from('0'), refetchHealthFactor };
+      }
+  
+      let collateral = deposits.reduce((prevVal, currVal) => {   
+        if (nftToWithdraw!.contractAddress! === currVal.address && nftToWithdraw!.id!.eq(currVal.tokenId)) {
+          return prevVal;
+        }
+        return prevVal.add(floorPrice);
+      }, BigNumber.from('0'));
+      
+      const liquidationThreshold = collateral
+        .mul(BigNumber.from('8000'))
+        .div(BigNumber.from('100'));
+  
+      return { healthFactor: liquidationThreshold.div(fullDebt), refetchHealthFactor };
+    }
 }
-
 
 export function useGetDeposits(forAddress: string | undefined): {deposits: IDeposit[], error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork();

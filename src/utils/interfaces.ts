@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { Interface } from "ethers/lib/utils";
+import { ReactNode } from "react";
 
 export interface IDeposit {
   address: string;
@@ -23,4 +24,11 @@ export interface IChainConfig {
 		oracleABI: Interface
 		dummyNFTABI: Interface
 	}
+}
+
+export type AlertType = "success" | "failure";
+
+export interface IAlert{
+  message: string,
+  alertType: AlertType,
 }

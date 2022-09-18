@@ -1,7 +1,9 @@
+import { ReactNode } from "react";
+
 type ButtonStyle = 'btn-primary' | '';
 
 interface ButtonProps {
-  text: string;
+  text: ReactNode;
   onClickHandler: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => any;
   style: ButtonStyle;
   disabled?: boolean;

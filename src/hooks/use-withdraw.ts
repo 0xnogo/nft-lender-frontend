@@ -20,13 +20,13 @@ export function useWithdraw(
     const contracts = chainConfig[chain?.id ?? 5];
     
     const {healthFactor} = useHealthFactor(fromAddress, {contractAddress, id});
-        
+    
     const {config, refetch: refetchPrepareWithdraw} = usePrepareContractWrite({
       addressOrName: contracts.nftLenderAddress,
       contractInterface: contracts.nftLenderABI,
       functionName: 'withdraw',
       args: [contractAddress, ethers.BigNumber.from(Boolean(id) ? id : 0)],
-      enabled: Boolean(id) && Boolean(contractAddress) && healthFactor.gt(BigNumber.from('100')),
+      enabled: Boolean(fromAddress) && Boolean(id) && Boolean(contractAddress) && healthFactor.gt(BigNumber.from('100')),
       onError(err) {
         console.log("ERROOOOOOR");
       }
@@ -76,10 +76,6 @@ export const useWithdrawAll = (
       hash: dataWithdrawAll?.hash,
       onSuccess(data) {
         onSuccessHandler()
-      },
-      onError(err) {
-        console.log(err);
-        
       }
     })    
 

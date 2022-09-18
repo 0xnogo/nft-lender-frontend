@@ -36,7 +36,8 @@ export const Liquidate = (props: any): JSX.Element => {
 
   return (
     <Container title="Liquidate 😈">
-      
+      <p>Liquidate users positions by reimbursing their loans and you will get back the NFTs deposited at a discount. The following list gives you potential targets. You have to check if they are under-collateralized to liquidate.</p>
+
       {potentialTargets.length !== 0 && 
         <div>
           <p className="italic text-xs">Potential users to liquidate</p>

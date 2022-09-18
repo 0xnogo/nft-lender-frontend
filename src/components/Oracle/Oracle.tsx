@@ -28,6 +28,7 @@ export const Oracle = (props: any): JSX.Element => {
 
   return (
     <Container title="Change oracle price">
+      <p>To trigger liquidation, you can change the NFT floor price. The same price is applied for all NFTs. Ideally, we could have integrated with a real oracle.</p>
       <p>Current price: {`${truncateAndConvertBNtoString(currentFloorPrice)} ETH`}</p>
       <form className="flex flex-col gap-y-2">
         <input 

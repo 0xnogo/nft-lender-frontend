@@ -10,7 +10,7 @@ import {
 
 import { chainConfig } from '../assets/constants';
 
-export function useMint(onSuccessHandler?: () => void): any {
+export function useMint(onSuccessHandler?: (data: any) => void): any {
   const { chain } = useNetwork()
   const contracts = chainConfig[chain?.id ?? 5];
 
@@ -22,10 +22,9 @@ export function useMint(onSuccessHandler?: () => void): any {
 
   const { data, write: mint, isSuccess } = useContractWrite(config);
   const { isLoading: isLoadingMint, isSuccess: isSuccessMint } = useWaitForTransaction({
-    confirmations: 1,
     hash: data?.hash,
     onSuccess(data) {
-      onSuccessHandler?.()
+      onSuccessHandler?.(data)
     }
   })
 

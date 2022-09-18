@@ -1,37 +1,42 @@
 import { Listbox, Transition } from '@headlessui/react';
-import { useState, Fragment } from 'react';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { Spinner } from 'flowbite-react';
+import { Fragment, useContext, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { useGetDeposits, useGetFullDebt } from '../../hooks/use-nftlender';
-import { shrinkAddress } from '../../utils';
-import { Button } from '../UI/Button/Button';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 
-import { Container } from '../UI/Container/Container';
-import { IDeposit } from '../../utils/interfaces';
+import { useGetDeposits, useGetFullDebt } from '../../hooks/use-nftlender';
 import { useWithdraw, useWithdrawAll } from '../../hooks/use-withdraw';
+import AlertContext from '../../store/alert-context';
+import { shrinkAddress } from '../../utils';
+import { IDeposit } from '../../utils/interfaces';
+import { Button } from '../UI/Button/Button';
+import { Container } from '../UI/Container/Container';
 
 const generateTitle = (deposit: IDeposit): string => {
   return `token id: ${deposit.tokenId} - ${shrinkAddress(deposit.address)}`;
 }
 export const Withdraw = (props: any): JSX.Element => {
+  // context
+  const {onAlertHandler} = useContext(AlertContext);
+  
   const {address} = useAccount();
   const [idSelected, setIdSelected] = useState<number>(0)
   
   const {deposits, refetch: refetchDeposits} = useGetDeposits(address);
   const {fullDebt, refetch: refetchFullDebt} = useGetFullDebt(address);
 
-  const {withdrawAll, refetchPrepareWithdrawAll} = useWithdrawAll(address, deposits, () => {
-    console.log("SUCCESS");
+  const {withdrawAll, isLoadingWithdrawAll, refetchPrepareWithdrawAll} = useWithdrawAll(address, deposits, () => {
+    onAlertHandler({message: "Withdraw all and reimburse successful", alertType: "success"})
     refetchDeposits?.();
     refetchPrepareWithdrawAll?.();
   });
 
-  const {withdraw, refetchPrepareWithdraw} = useWithdraw(
+  const {withdraw, isLoadingWithdraw, refetchPrepareWithdraw} = useWithdraw(
     deposits[idSelected]?.address, 
     address,
     deposits[idSelected]?.tokenId, 
     () => {
-      console.log("SUCCESS");
+      onAlertHandler({message: "Withdraw successful", alertType: "success"})
       refetchDeposits?.();
       setIdSelected(0);
       refetchPrepareWithdraw?.();
@@ -50,6 +55,10 @@ export const Withdraw = (props: any): JSX.Element => {
         value: fullDebt.add(fullDebt.mul(10).div(100))
       }
     });
+  }
+
+  const generateButtonText = (text: string, isLoading?: boolean) => {
+    return isLoading? <><Spinner />Loading...</> : text;
   }
 
   return (
@@ -96,7 +105,7 @@ export const Withdraw = (props: any): JSX.Element => {
       }
       {deposits.length === 0 && <p>No deposit made</p>}
         
-      <Button text="Withdraw" style="btn-primary" onClickHandler={onWithdrawHandler} disabled={!withdraw} styleAdded="w-1/3 self-center" />
-      <Button text="Withdraw and reimburse all" style="btn-primary" onClickHandler={onWithdrawAllHandler} disabled={!withdrawAll} styleAdded="w-1/3 self-center"/>
+      <Button text={generateButtonText("Withdraw", isLoadingWithdraw)} style="btn-primary" onClickHandler={onWithdrawHandler} disabled={!withdraw} styleAdded="w-1/3 self-center" />
+      <Button text={generateButtonText("Withdraw and reimburse all", isLoadingWithdrawAll)} style="btn-primary" onClickHandler={onWithdrawAllHandler} disabled={!withdrawAll} styleAdded="w-1/3 self-center"/>
     </Container>);
 }

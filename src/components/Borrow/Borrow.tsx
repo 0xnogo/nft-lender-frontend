@@ -1,18 +1,22 @@
 import { BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useAccount } from 'wagmi';
-
+import { Spinner } from 'flowbite-react';
 import { useBorrow } from '../../hooks/use-borrow';
 import { useGetFullDebt, useMaxAmountLoan } from '../../hooks/use-nftlender';
 import { truncateAndConvertBNtoString } from '../../utils';
 import { Button } from '../UI/Button/Button';
 import { Container } from '../UI/Container/Container';
+import AlertContext from '../../store/alert-context';
 
 const inputStyle = "rounded-md bg-black p-4 focus:outline-none outline outline-1 outline-black hover:outline-1 hover:outline-blue-900";
 
 export const Borrow = (props: any): JSX.Element => {
+  // context
+  const {onAlertHandler} = useContext(AlertContext);
+
   // internal state
   const [borrowAmount, setBorrowAmount] = useState<string>("");
   const { address } = useAccount()
@@ -27,6 +31,7 @@ export const Borrow = (props: any): JSX.Element => {
 
   // borrow
   const {borrow, isLoadingBorrow, isSuccessBorrow, refetchPrepareBorrow} = useBorrow(debounceBorrowAmount, () => {
+    onAlertHandler({message: "Borrow successful", alertType: "success"})
     setBorrowAmount("")
     refetchPrepareBorrow?.();
   });
@@ -40,10 +45,9 @@ export const Borrow = (props: any): JSX.Element => {
     borrow?.();
   };
 
-  const buttonText = (): string => {
-    if (isLoadingBorrow) return "Borrowing..."
+  const generateButtonText = (text: string, isLoading?: boolean) => {
     if (!isValid) return "Amount asked exceeding maximum allowed";
-    return "Borrow"
+    return isLoading? <><Spinner />Loading...</> : text;
   }
 
   return (
@@ -57,6 +61,6 @@ export const Borrow = (props: any): JSX.Element => {
           onChange={(e) => onChangeAmountHandler(e)} 
           className={inputStyle + (isValid ? "" : " outline-red-900 hover:outline-red-900 focus:outline-1 focus:outline-red-900")} />
       </form>
-      <Button disabled={!borrow || !isValid} text={buttonText()} onClickHandler={onBorrowHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>
+      <Button disabled={!borrow || !isValid} text={generateButtonText("Borrow", isLoadingBorrow)} onClickHandler={onBorrowHandler} style="btn-primary" styleAdded="w-1/3 self-center"/>
     </Container>);
 }
