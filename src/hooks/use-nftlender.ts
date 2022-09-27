@@ -8,7 +8,7 @@ export const INTEREST_RATE = 316887385;
 
 export function useGetFloorPrice(forAddress?: string | undefined): {floorPrice: BigNumber, isError: boolean, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
-  const contracts = chainConfig[chain?.id ?? 5]
+  let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
 
   forAddress = contracts.dummyNFTAddress;
 
@@ -28,7 +28,7 @@ export function useGetFloorPrice(forAddress?: string | undefined): {floorPrice: 
 
 export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan: BigNumber, error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
-  const contracts = chainConfig[chain?.id ?? 5]
+  let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
   const { data, error, refetch } = useContractRead({
     addressOrName: contracts.nftLenderAddress,
     contractInterface: contracts.nftLenderABI,
@@ -45,8 +45,8 @@ export function useMaxAmountLoan(forAddress: string | undefined): {maxAmountLoan
 
 export function useGetFullDebt(forAddress: string | undefined): {fullDebt: BigNumber, error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
-  const contracts = chainConfig[chain?.id ?? 5]
-
+  let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
+    
   const { data, error, refetch } = useContractRead({
     addressOrName: contracts.nftLenderAddress,
     contractInterface: contracts.nftLenderABI,
@@ -73,7 +73,7 @@ export function useHealthFactor(
   forAddress: string | undefined,
   nftToWithdraw?: {contractAddress: string | undefined, id: BigNumber | undefined}): {healthFactor: BigNumber, refetchHealthFactor: any} {
     const { chain } = useNetwork();
-    const contracts = chainConfig[chain?.id ?? 5];
+    let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
     
     const { data, error, refetch: refetchHealthFactor } = useContractRead({
       addressOrName: contracts.nftLenderAddress,
@@ -113,7 +113,7 @@ export function useHealthFactor(
 
 export function useGetDeposits(forAddress: string | undefined): {deposits: IDeposit[], error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork();
-  const contracts = chainConfig[chain?.id ?? 5]
+  let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
 
   const { data, error, refetch } = useContractRead({
     addressOrName: contracts.nftLenderAddress,
@@ -139,7 +139,7 @@ export function useGetDeposits(forAddress: string | undefined): {deposits: IDepo
 
 export function useGetLoans(forAddress: string | undefined): {loans: ILoan[], error: Error | null, refetch: (options?: any) => any} {
   const { chain } = useNetwork()
-  const contracts = chainConfig[chain?.id ?? 5]
+  let contracts = chainConfig[chain?.id ?? 5] ?? chainConfig[5];
   
   const { data, error, refetch } = useContractRead({
     addressOrName: contracts.nftLenderAddress,
